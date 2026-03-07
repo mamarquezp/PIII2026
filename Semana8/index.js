@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Tarea = require('./models/Tarea.js')
+const Producto = require('./models/Producto.js')
 
 const app = express();
 
@@ -14,16 +14,16 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch(err => console.error('Error',err));
 
 // GET tareas
-app.get('/tareas', async (req, res) => {
-    const tareas = await Tarea.find().sort('-createdAt');
-    res.json(tareas);
+app.get('/productos', async (req, res) => {
+    const productos = await Producto.find().sort('-createdAt');
+    res.json(productos);
 });
 
 // POST 
-app.post('/tareas', async (req, res) => {
+app.post('/productos', async (req, res) => {
     try {
         const { titulo, descripcion, prioridad, fechaLimite } = req.body;
-        const nuevaTarea = new Tarea({
+        const nuevaTarea = new Producto({
             titulo,
             descripcion,
             prioridad,
@@ -32,29 +32,29 @@ app.post('/tareas', async (req, res) => {
         await nuevaTarea.save();
         res.status(201).json(nuevaTarea);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al crear la tarea', error });
+        res.status(400).json({ mensaje: 'Error al crear la producto', error });
     }
 });
 
 // PUT
-app.put('/tareas/:id', async (req, res) => {
+app.put('/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { titulo, completada, descripcion, prioridad, fechaLimite } = req.body;
         
-        const tareaActualizada = await Tarea.findByIdAndUpdate(
+        const productoActualizado = await Producto.findByIdAndUpdate(
             id,
             { titulo, completada, descripcion, prioridad, fechaLimite },
             { new: true, runValidators: true }
         );
 
-        if (!tareaActualizada) {
-            return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+        if (!productoActualizado) {
+            return res.status(404).json({ mensaje: 'Producto no encontrada' });
         }
 
-        res.json(tareaActualizada);
+        res.json(productoActualizado);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al actualizar la tarea', error });
+        res.status(400).json({ mensaje: 'Error al actualizar el producto', error });
     }
 });
 

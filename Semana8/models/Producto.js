@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const tareaSchema = new mongoose.Schema({
+const productoSchema = new mongoose.Schema({
     titulo: {
         type: String,
         required: [true, 'El título es requerido'],
@@ -29,4 +29,4 @@ const tareaSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Tarea', tareaSchema);
+module.exports = mongoose.model('Producto', productoSchema);
