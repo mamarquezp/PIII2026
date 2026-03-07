@@ -13,26 +13,24 @@ mongoose.connect(process.env.MONGODB_URI)
 .then (() => console.log('Conexión exitosa'))
 .catch(err => console.error('Error',err));
 
-// GET tareas
+// GET productos todos
 app.get('/productos', async (req, res) => {
-    const productos = await Producto.find().sort('-createdAt');
-    res.json(productos);
+    try {
+        const productos = await Producto.find();
+        res.json(productos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener productos', error });
+    }
 });
 
 // POST 
 app.post('/productos', async (req, res) => {
     try {
-        const { titulo, descripcion, prioridad, fechaLimite } = req.body;
-        const nuevaTarea = new Producto({
-            titulo,
-            descripcion,
-            prioridad,
-            fechaLimite
-        });
-        await nuevaTarea.save();
-        res.status(201).json(nuevaTarea);
+        const nuevoProducto = new Producto(req.body);
+        await nuevoProducto.save();
+        res.status(201).json(nuevoProducto);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al crear la producto', error });
+        res.status(400).json({ mensaje: 'Error al crear el producto', error });
     }
 });
 
@@ -40,21 +38,32 @@ app.post('/productos', async (req, res) => {
 app.put('/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { titulo, completada, descripcion, prioridad, fechaLimite } = req.body;
-        
         const productoActualizado = await Producto.findByIdAndUpdate(
             id,
-            { titulo, completada, descripcion, prioridad, fechaLimite },
+            req.body,
             { new: true, runValidators: true }
         );
 
         if (!productoActualizado) {
-            return res.status(404).json({ mensaje: 'Producto no encontrada' });
+            return res.status(404).json({ mensaje: 'Producto no encontrado' });
         }
-
         res.json(productoActualizado);
     } catch (error) {
         res.status(400).json({ mensaje: 'Error al actualizar el producto', error });
+    }
+});
+
+app.delete('/productos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const productoEliminado = await Producto.findByIdAndDelete(id);
+        
+        if (!productoEliminado) {
+            return res.status(404).json({ mensaje: 'Producto no encontrado' });
+        }
+        res.json({ mensaje: 'Producto eliminado correctamente' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al eliminar el producto', error });
     }
 });
 
