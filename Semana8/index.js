@@ -23,14 +23,64 @@ app.get('/productos', async (req, res) => {
     }
 });
 
-// POST 
+// GET producto por ID
+app.get('/productos/:id', async (req, res) => {
+    try {
+        const producto = await Producto.findById(req.params.id);
+        if (!producto) return res.status(404).json({ mensaje: 'Producto no encontrado' });
+        res.json(producto);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error });
+    }
+});
+
+// GET producto por filtro
+
+app.get('/productos', async (req, res) => {
+    try {
+        const { categoria, minPrecio, maxPrecio, pagina = 1, limite = 10 } = req.query;
+        let filtro = {};
+
+        if (categoria) {
+            filtro.categoria = categoria;
+        }
+
+        if (minPrecio || maxPrecio) {
+            filtro.precio = {};
+            if (minPrecio) filtro.precio.$gte = Number(minPrecio);
+            if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
+        }
+
+        const skip = (Number(pagina) - 1) * Number(limite);
+
+        const productos = await Producto.find(filtro)
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(Number(limite));
+
+        const total = await Producto.countDocuments(filtro);
+
+        res.json({
+            total,
+            pagina: Number(pagina),
+            paginasTotales: Math.ceil(total / limite),
+            datos: productos
+        });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener productos', error });
+    }
+});
+
+// POST
+
 app.post('/productos', async (req, res) => {
     try {
-        const nuevoProducto = new Producto(req.body);
+        const { nombre, precio, categoria, stock, descripcion } = req.body;
+        const nuevoProducto = new Producto({ nombre, precio, categoria, stock, descripcion });
         await nuevoProducto.save();
         res.status(201).json(nuevoProducto);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al crear el producto', error });
+        res.status(400).json({ mensaje: 'Error al crear producto', error });
     }
 });
 
@@ -49,7 +99,7 @@ app.put('/productos/:id', async (req, res) => {
         }
         res.json(productoActualizado);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al actualizar el producto', error });
+        res.status(400).json({ mensaje: 'Error al actualizar producto', error });
     }
 });
 

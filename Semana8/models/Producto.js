@@ -14,6 +14,7 @@ const productoSchema = new mongoose.Schema({
     categoria: {
         type: String,
         required: [true, 'La categoría es obligatoria'],
+        enum: ['electrónica', 'ropa', 'alimentos', 'accesorios'],
         trim: true
     },
     stock: {
