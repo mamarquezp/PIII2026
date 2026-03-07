@@ -1,32 +1,31 @@
 const mongoose = require('mongoose');
 
 const productoSchema = new mongoose.Schema({
-    titulo: {
+    nombre: {
         type: String,
-        required: [true, 'El título es requerido'],
-        trim: true
+        required: true,
+        minlength: 3
     },
-    completada: {
-        type: Boolean,
-        default: false
+    precio: {
+        type: Number,
+        required: true,
+        min: 0
     },
+    categoria: {
+        type: String,
+        required: true,
+        enum: ['electrónica', 'ropa', 'alimentos']
+    },
+    stock: { type: Number, default: 0 },
     descripcion: {
         type: String,
-        required: false
-    },
-    prioridad: {
-        type: String,
-        enum: ['alta', 'media', 'baja'],
-        default: 'media'
-    },
-    fechaLimite: {
-        type: Date,
-        required: false
+        trim: true
     },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
+
 
 module.exports = mongoose.model('Producto', productoSchema);
