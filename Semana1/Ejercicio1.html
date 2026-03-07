@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Calculadora de Edad</title>
+</head>
+
+<body>
+    <h1 id="titulo">Calculadora de Edad</h1>
+    <button onclick="pedirDatos()">Calcular</button>
+    <p id="resultado"></p>
+    <script>
+        function pedirDatos() {
+            let ANacimiento = prompt("Por favor, ingresa tu año de nacimiento:");
+            if (ANacimiento) {
+                let edad = 2025 - ANacimiento
+                document.getElementById("resultado").textContent = "Tienes: " + edad + " años";
+            } else {
+                document.getElementById("resultado").textContent = "No ingresaste un dato válido";
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lista de Compras Interactiva</title>
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+            input, select { padding: 10px; margin: 5px; width: 60%; }
+            button { padding: 10px 20px; background: beige; color: black; border: 1px solid #ccc; cursor: pointer; }
+            button:hover { background-color: #787676; }
+            .controles { margin: 20px 0; padding: 10px; background: #f0f0f0; }            
+            ul { list-style-type: none; padding: 0; }
+            li { background: #fff; border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+            .comprado { text-decoration: line-through; color: gray; }
+            .btn-small { padding: 5px 10px; font-size: 12px; margin-left: 5px; background-color: #96f69c;}
+            .btn-danger { background-color: #ffcccc; }
+        </style>
+    </head>
+    <body>
+        <h1>Lista de Compras</h1>
+        
+        <div>
+            <input type="text" id="txtNombre" placeholder="Ingresa un producto">
+            <select id="selCategoria">
+                <option value="Comida">Comida</option>
+                <option value="Mascotas">Mascotas</option>
+                <option value="Limpieza">Limpieza</option>
+                <option value="Varios">Varios</option>
+            </select>
+            <button id="btnAgregar">Agregar</button>
+        </div>
+
+        <div class="controles">
+            <label>Filtrar vista por:</label>
+            <select id="selFiltro">
+                <option value="Todos">Todos</option>
+                <option value="Comida">Solo Comida</option>
+                <option value="Mascotas">Solo Mascotas</option>
+                <option value="Limpieza">Solo Limpieza</option>
+                <option value="Varios">Solo Varios</option>
+            </select>
+            <button id="btnFiltrar">Aplicar Filtro</button>
+        </div>
+
+        <ul id="listaProductos"></ul>
+
+        <script src="compras.js"></script>
+    </body>
+</html>

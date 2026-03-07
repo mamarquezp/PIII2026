@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>To Do List</title>
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+            input, select { padding: 10px; margin: 5px; width: 60%; }
+            button { padding: 10px 20px; background: beige; color: black; border: 1px solid #ccc; cursor: pointer; }
+            button:hover { background-color: #787676; }
+            .controles { margin: 20px 0; padding: 10px; background: #f0f0f0; }            
+            ul { list-style-type: none; padding: 0; }
+            li { background: #fff; border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+            .completado { text-decoration: line-through; color: gray; }
+            .btn-small { padding: 5px 10px; font-size: 12px; margin-left: 5px; background-color: #96f69c;}
+            .btn-danger { background-color: #ffcccc; }
+        </style>
+    </head>
+    <body>
+        <h1>To Do List</h1>
+        
+        <div>
+            <input type="text" id="txtNombre" placeholder="Ingresa una tarea">
+            <select id="selPrioridad">
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+            </select>
+            <button id="btnAgregar">Agregar</button>
+        </div>
+
+        <div class="controles">
+            <label>Filtrar vista por Prioridad:</label>
+            <select id="selFiltro">
+                <option value="Todas">Todas</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+            </select>
+            
+        </div>
+
+        <ul id="listaTareas"></ul>
+
+        <script src="toDoList.js"></script>
+    </body>
+</html>
