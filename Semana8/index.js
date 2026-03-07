@@ -1,23 +1,47 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-
-const Producto = require('./models/Producto.js')
+const Producto = require('./models/Producto'); 
 
 const app = express();
-
 app.use(express.json());
 
-//conectar DB
 mongoose.connect(process.env.MONGODB_URI)
-.then (() => console.log('Conexión exitosa'))
-.catch(err => console.error('Error',err));
+    .then(() => console.log('Conexión exitosa'))
+    .catch(err => console.error('Error', err));
 
-// GET productos todos
+// GET filtros y paginación
 app.get('/productos', async (req, res) => {
     try {
-        const productos = await Producto.find();
-        res.json(productos);
+        let { categoria, minPrecio, maxPrecio, pagina = 1, limite = 10 } = req.query;
+        pagina = Number(pagina);
+        limite = Number(limite);
+
+        let filtro = {};
+        if (categoria) {
+            filtro.categoria = categoria;
+        }
+        if (minPrecio || maxPrecio) {
+            filtro.precio = {};
+            if (minPrecio) filtro.precio.$gte = Number(minPrecio);
+            if (maxPrecio) filtro.precio.$lte = Number(maxPrecio); 
+        }
+
+        const skip = (pagina - 1) * limite; 
+
+        const productos = await Producto.find(filtro)
+            .skip(skip)
+            .limit(limite)
+            .sort('-createdAt');
+
+        const total = await Producto.countDocuments(filtro);
+
+        res.json({
+            total,
+            pagina,
+            paginasTotales: Math.ceil(total / limite),
+            datos: productos
+        });
     } catch (error) {
         res.status(500).json({ mensaje: 'Error al obtener productos', error });
     }
@@ -34,53 +58,14 @@ app.get('/productos/:id', async (req, res) => {
     }
 });
 
-// GET producto por filtro
-
-app.get('/productos', async (req, res) => {
-    try {
-        const { categoria, minPrecio, maxPrecio, pagina = 1, limite = 10 } = req.query;
-        let filtro = {};
-
-        if (categoria) {
-            filtro.categoria = categoria;
-        }
-
-        if (minPrecio || maxPrecio) {
-            filtro.precio = {};
-            if (minPrecio) filtro.precio.$gte = Number(minPrecio);
-            if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
-        }
-
-        const skip = (Number(pagina) - 1) * Number(limite);
-
-        const productos = await Producto.find(filtro)
-            .sort('-createdAt')
-            .skip(skip)
-            .limit(Number(limite));
-
-        const total = await Producto.countDocuments(filtro);
-
-        res.json({
-            total,
-            pagina: Number(pagina),
-            paginasTotales: Math.ceil(total / limite),
-            datos: productos
-        });
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener productos', error });
-    }
-});
-
-// POST
-
+// POST 
 app.post('/productos', async (req, res) => {
     try {
-        const { nombre, precio, categoria, stock, descripcion } = req.body;
-        const nuevoProducto = new Producto({ nombre, precio, categoria, stock, descripcion });
+        const nuevoProducto = new Producto(req.body);
         await nuevoProducto.save();
         res.status(201).json(nuevoProducto);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al crear producto', error });
+        res.status(400).json({ mensaje: 'Error al crear el producto', error });
     }
 });
 
@@ -93,16 +78,16 @@ app.put('/productos/:id', async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
-
         if (!productoActualizado) {
             return res.status(404).json({ mensaje: 'Producto no encontrado' });
         }
         res.json(productoActualizado);
     } catch (error) {
-        res.status(400).json({ mensaje: 'Error al actualizar producto', error });
+        res.status(400).json({ mensaje: 'Error al actualizar el producto', error });
     }
 });
 
+// DELETE
 app.delete('/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -117,5 +102,4 @@ app.delete('/productos/:id', async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Server en 3000')
-);
+app.listen(3000, () => console.log('Server en puerto 3000'));
