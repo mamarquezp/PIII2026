@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const Producto = require('./models/Producto'); 
+const Producto = require('./models/Producto');
 
 const app = express();
 app.use(express.json());
@@ -24,10 +24,14 @@ app.get('/productos', async (req, res) => {
         if (minPrecio || maxPrecio) {
             filtro.precio = {};
             if (minPrecio) filtro.precio.$gte = Number(minPrecio);
-            if (maxPrecio) filtro.precio.$lte = Number(maxPrecio); 
+            if (maxPrecio) filtro.precio.$lte = Number(maxPrecio);
         }
 
-        const skip = (pagina - 1) * limite; 
+        if (nombre) {
+            filtro.nombre = { $regex: nombre, $options: 'i' };
+        }
+
+        const skip = (pagina - 1) * limite;
 
         const productos = await Producto.find(filtro)
             .skip(skip)
@@ -58,6 +62,33 @@ app.get('/productos/:id', async (req, res) => {
     }
 });
 
+// GET Categoria
+
+app.get('/productos/categoria/:categoria', async (req, res) => {
+    try {
+        const productos = await Producto.find({ categoria: req.params.categoria });
+        res.json(productos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener productos por categoría', error });
+    }
+});
+
+// GET Precio
+
+app.get('/productos/precio', async (req, res) => {
+    try {
+        const { min, max } = req.query;
+        let filtro = {};
+        if (min) filtro.$gte = Number(min);
+        if (max) filtro.$lte = Number(max);
+
+        const productos = await Producto.find({ precio: filtro });
+        res.json(productos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener productos por precio', error });
+    }
+});
+
 // POST 
 app.post('/productos', async (req, res) => {
     try {
@@ -69,8 +100,8 @@ app.post('/productos', async (req, res) => {
     }
 });
 
-// PUT
-app.put('/productos/:id', async (req, res) => {
+// PATCH
+app.patch('/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const productoActualizado = await Producto.findByIdAndUpdate(
@@ -92,11 +123,11 @@ app.delete('/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const productoEliminado = await Producto.findByIdAndDelete(id);
-        
+
         if (!productoEliminado) {
             return res.status(404).json({ mensaje: 'Producto no encontrado' });
         }
-        res.json({ mensaje: 'Producto eliminado correctamente' });
+        res.status(204).send();
     } catch (error) {
         res.status(500).json({ mensaje: 'Error al eliminar el producto', error });
     }
