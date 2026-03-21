@@ -13,9 +13,9 @@ mongoose.connect(process.env.MONGODB_URI)
 // GET filtros y paginación
 app.get('/productos', async (req, res) => {
     try {
-        let { categoria, minPrecio, maxPrecio, pagina = 1, limite = 10 } = req.query;
-        pagina = Number(pagina);
-        limite = Number(limite);
+        let { categoria, minPrecio, maxPrecio, nombre, pagina = 1, limite = 10 } = req.query;
+        pagina = Number(pagina) || 1;
+        limite = Number(limite) || 10;
 
         let filtro = {};
         if (categoria) {
@@ -51,17 +51,6 @@ app.get('/productos', async (req, res) => {
     }
 });
 
-// GET producto por ID
-app.get('/productos/:id', async (req, res) => {
-    try {
-        const producto = await Producto.findById(req.params.id);
-        if (!producto) return res.status(404).json({ mensaje: 'Producto no encontrado' });
-        res.json(producto);
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error en el servidor', error });
-    }
-});
-
 // GET Categoria
 
 app.get('/productos/categoria/:categoria', async (req, res) => {
@@ -89,6 +78,18 @@ app.get('/productos/precio', async (req, res) => {
     }
 });
 
+// GET producto por ID
+app.get('/productos/:id', async (req, res) => {
+    try {
+        const producto = await Producto.findById(req.params.id);
+        if (!producto) return res.status(404).json({ mensaje: 'Producto no encontrado' });
+        res.json(producto);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error });
+    }
+});
+
+
 // POST 
 app.post('/productos', async (req, res) => {
     try {
@@ -97,6 +98,21 @@ app.post('/productos', async (req, res) => {
         res.status(201).json(nuevoProducto);
     } catch (error) {
         res.status(400).json({ mensaje: 'Error al crear el producto', error });
+    }
+});
+
+// PUT 
+
+app.put('/productos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const productoActualizado = await Producto.findByIdAndUpdate(
+            id, req.body, { new: true, runValidators: true }
+        );
+        if (!productoActualizado) return res.status(404).json({ mensaje: 'Producto no encontrado' });
+        res.json(productoActualizado);
+    } catch (error) {
+        res.status(400).json({ mensaje: 'Error al actualizar el producto', error });
     }
 });
 
